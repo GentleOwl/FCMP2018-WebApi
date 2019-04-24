@@ -1,25 +1,34 @@
 const express = require('express');
 const newsService = require('../services/news-service');
+const auth = require('./auth');
 const router = express.Router();
 
-router.get('/', function(req, res, next) {
-  res.json(newsService.getNews());
+router.get('/', auth.required, async (req, res, next) => {
+  const newsItems = await newsService.getNews();
+
+  res.json(newsItems);
 });
 
-router.get('/:id', function(req, res, next) {
-  res.json(newsService.getNewsById(+req.params.id));
+router.get('/:id', auth.required, async (req, res, next) => {
+  const newsItem = await newsService.getNewsById(req.params.id);
+
+  res.json(newsItem);
 });
 
-router.delete('/:id', function(req, res, next) {
-  res.json(newsService.deleteNews(+req.params.id));
+router.delete('/:id', auth.required, function(req, res, next) {
+  res.json(newsService.deleteNews(req.params.id));
 });
 
-router.put('/', function(req, res, next) {
-  res.json(newsService.addNews(req.body));
+router.put('/', auth.required, async (req, res, next) => {
+  const newsItem = await newsService.addNews(req.body)
+
+  res.json(newsItem);
 });
 
-router.post('/', function(req, res, next) {
-  res.json(newsService.updateNews(req.body));
+router.post('/:id', auth.required, async (req, res, next) => {
+  const newsItem = await newsService.updateNews(req.params.id, req.body)
+
+  res.json(newsItem);
 });
 
 module.exports = router;

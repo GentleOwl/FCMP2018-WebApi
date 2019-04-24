@@ -1,86 +1,27 @@
-const localStorage = require('localStorage');
+var NewsItem = require('../models/news-item');
 
 class NewsService {
     constructor() {
-        const news = [
-            { id: 1, description: 'News 1' },
-            { id: 2, description: 'News 2' },
-            { id: 3, description: 'News 3' },
-            { id: 4, description: 'News 4' },
-            { id: 5, description: 'News 5' },
-            { id: 6, description: 'News 6' },
-            { id: 7, description: 'News 7' },
-            { id: 8, description: 'News 8' },
-            { id: 9, description: 'News 9' },
-            { id: 10, description: 'News 10' },
-        ];
-
-        this.setNewsInStorage(news);
-        localStorage.setItem('newsId', 11);
     }
 
-    getNews() {
-        return this.getNewsFromStorage();
+    async getNews() {
+        return await NewsItem.find({});
     }
 
-    getNewsById(newsId) {
-        return this.getNewsFromStorage().find(o => o.id === newsId);
+    async getNewsById(newsItemId) {
+        return await NewsItem.findById(newsItemId);
     }
 
-    deleteNews(newsId) {
-        const news = this.getNewsFromStorage();
-        const index = news.findIndex(o => o.id === newsId);
-        if (index < 0) {
-            return;
-        }
-
-        news.splice(index, 1);
-        this.setNewsInStorage(news);
+    async deleteNews(newsItemId) {
+        await NewsItem.findOneAndRemove({ _id: newsItemId });
     }
 
-    updateNews(newsItem) {
-        if (!newsItem) {
-            return null;
-        }
-
-        const news = this.getNewsFromStorage();
-        const index = news.findIndex(o => o.id === newsItem.id);
-        if (index < 0) {
-            return null;
-        }
-
-        news.splice(index, 1, newsItem);
-        this.setNewsInStorage(news);
-
-        return newsItem;
+    async updateNews(newsItemId, newsItem) {
+        return await NewsItem.findOneAndUpdate({ _id: newsItemId }, newsItem, { new: true });
     }
 
-    addNews(newsItem) {
-        if (!newsItem) {
-            return null;
-        }
-
-        const news = this.getNewsFromStorage();
-        newsItem.id = this.getNextNewsId();
-
-        news.push(newsItem);
-        this.setNewsInStorage(news);
-
-        return newsItem;
-    }
-
-    getNewsFromStorage() {
-        return JSON.parse(localStorage.getItem('news'));
-    }
-
-    setNewsInStorage(news) {
-        localStorage.setItem('news', JSON.stringify(news));
-    }
-
-    getNextNewsId() {
-        const nextId = +localStorage.getItem('newsId');
-        localStorage.setItem('newsId', nextId + 1);
-        return nextId;
+    async addNews(newsItem) {
+        return await NewsItem.create(newsItem);
     }
 }
 
