@@ -29,6 +29,8 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(session({ secret: 'fcmp-2018', cookie: { maxAge: 60000 }, resave: false, saveUninitialized: false }));
 
+require('./config/passport');
+
 app.use('/user', userRouter);
 app.use('/news', newsRouter);
 
