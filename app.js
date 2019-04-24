@@ -6,8 +6,10 @@ const logger = require('morgan');
 const bodyParser = require('body-parser');
 const config = require('./config');
 const cors = require('cors');
+const session = require('express-session');
 
 const newsRouter = require('./routes/news');
+const userRouter = require('./routes/user');
 
 mongoose.connect(config.databaseUri, { useNewUrlParser: true });
 
@@ -22,20 +24,23 @@ const app = express();
 
 app.use(cors());
 app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(session({ secret: 'fcmp-2018', cookie: { maxAge: 60000 }, resave: false, saveUninitialized: false }));
 
+app.use('/user', userRouter);
 app.use('/news', newsRouter);
 
-app.use(function(err, req, res, next) {
-    res.locals.message = err.message;
-    res.locals.status = err.status || 500;
+app.use((err, req, res) => {
+  res.status(err.status || 500);
 
-    res.status(err.status || 500);
+  res.json({
+    errors: {
+      message: err.message,
+      error: err,
+    },
+  });
 });
 
 module.exports = app;
