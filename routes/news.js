@@ -3,13 +3,13 @@ const newsService = require('../services/news-service');
 const auth = require('./auth');
 const router = express.Router();
 
-router.get('/', auth.required, async (req, res, next) => {
+router.get('/', auth.optional, async (req, res, next) => {
   const newsItems = await newsService.getNews();
 
   res.json(newsItems);
 });
 
-router.get('/:id', auth.required, async (req, res, next) => {
+router.get('/:id', auth.optional, async (req, res, next) => {
   const newsItem = await newsService.getNewsById(req.params.id);
 
   res.json(newsItem);
